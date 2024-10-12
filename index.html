@@ -1,421 +1,1192 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="description"
-        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
-  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DEMO: Enhancing Motion in Text-to-Video Generation with Decomposed Encoding and Conditioning</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="description"
+      content="DEMO: Enhancing Motion in Text-to-Video Generation with Decomposed
+      Encoding and Conditioning"
+    />
+    <title>
+      DEMO: Enhancing Motion in Text-to-Video Generation with Decomposed
+      Encoding and Conditioning
+    </title>
 
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
 
-    function gtag() {
-      dataLayer.push(arguments);
-    }
+    <style>
+      p {
+        font-size: 1.1rem; /* Adjust the size as needed */
+      }
+    </style>
+    <style>
+      figure {
+        text-align: center; /* Center the image and caption */
+        margin: 20px 0;
+      }
 
-    gtag('js', new Date());
+      figcaption {
+        font-style: italic; /* Optional: Italicize the caption */
+        color: #555; /* Optional: Set caption text color */
+        margin-top: 0px;
+      }
+    </style>
 
-    gtag('config', 'G-PYVRSFMDRL');
-  </script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
 
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
-        rel="stylesheet">
+      function gtag() {
+        dataLayer.push(arguments);
+      }
 
-  <link rel="stylesheet" href="./static/css/bulma.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
-  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <link rel="stylesheet" href="./static/css/index.css">
-  <link rel="icon" href="./static/images/favicon.svg">
+      gtag("js", new Date());
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script defer src="./static/js/fontawesome.all.min.js"></script>
-  <script src="./static/js/bulma-carousel.min.js"></script>
-  <script src="./static/js/bulma-slider.min.js"></script>
-  <script src="./static/js/index.js"></script>
-</head>
-<body>
+      gtag("config", "G-PYVRSFMDRL");
+    </script>
 
+    <link
+      href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+      rel="stylesheet"
+    />
 
-<section class="hero">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered">
-        <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">DEMO: Enhancing Motion in Text-to-Video Generation with Decomposed Encoding and Conditioning</h1>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">
-              <a href="https://keunhong.com">Penghui Ruan</a><sup>1,2</sup>,</span>
-            <span class="author-block">
-              <a href="https://utkarshsinha.com">Pichao Wang</a><sup>3</sup>,</span>
-            <span class="author-block">
-              <a href="https://jonbarron.info">Divya Saxena</a><sup>1</sup>,
-            </span>
-            <span class="author-block">
-              <a href="http://sofienbouaziz.com">Jiannong Cao</a><sup>1</sup>,
-            </span>
-            <span class="author-block">
-              <a href="https://www.danbgoldman.com">Yuhui Shi</a><sup>2</sup>
-            </span>
+    <link rel="stylesheet" href="./static/css/bulma.min.css" />
+    <link rel="stylesheet" href="./static/css/bulma-carousel.min.css" />
+    <link rel="stylesheet" href="./static/css/bulma-slider.min.css" />
+    <link rel="stylesheet" href="./static/css/fontawesome.all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css"
+    />
+    <link rel="stylesheet" href="./static/css/index.css" />
+    <!-- <link rel="icon" href="./static/images/favicon.svg" /> -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script defer src="./static/js/fontawesome.all.min.js"></script>
+    <script src="./static/js/bulma-carousel.min.js"></script>
+    <script src="./static/js/bulma-slider.min.js"></script>
+    <script src="./static/js/index.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        bulmaCarousel.attach("#results-carousel", {
+          slidesToScroll: 1,
+          slidesToShow: 1,
+          loop: true,
+          infinite: true,
+          autoplay: false,
+          pauseOnHover: true,
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <section class="hero">
+      <div class="hero-body">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered">
+            <div class="column has-text-centered">
+              <h1 class="title is-1 publication-title">
+                DEMO: Enhancing Motion in Text-to-Video Generation with
+                Decomposed Encoding and Conditioning
+              </h1>
+              <h5 class="title is-1 publication-title" style="font-size: xx-large;">
+                Accepted to NeurIPS 2024
+              </h5>
+
+              <div class="is-size-5 publication-authors">
+                <span class="author-block">
+                  <a href="https://pr-ryan.github.io/">Penghui Ruan</a
+                  ><sup>1,3</sup>,</span
+                >
+                <span class="author-block">
+                  <a href="https://wangpichao.github.io/">Pichao Wang</a
+                  ><sup>2</sup>,</span
+                >
+                <span class="author-block">
+                  <a href="https://github.com/IntellicentAI-Lab">Divya Saxena</a
+                  ><sup>1</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://www4.comp.polyu.edu.hk/~csjcao/"
+                    >Jiannong Cao</a
+                  ><sup>1</sup>,
+                </span>
+                <span class="author-block">
+                  <a
+                    href="https://www.sustech.edu.cn/en/faculties/shiyuhui.html"
+                    >Yuhui Shi</a
+                  ><sup>3</sup>
+                </span>
+              </div>
+
+              <div class="is-size-5 publication-authors">
+                <span class="author-block"
+                  ><sup>1</sup>The Hong Kong Polytechnic University,</span
+                >
+                <span class="author-block"><sup>2</sup>Amazon,</span>
+                <span class="author-block"
+                  ><sup>3</sup>Southern University of Science and
+                  Technology</span
+                >
+              </div>
+
+              <div class="column has-text-centered">
+                <div class="publication-links">
+                  <!-- PDF Link. -->
+                  <span class="link-block">
+                    <a
+                      href=""
+                      class="external-link button is-normal is-rounded is-dark"
+                    >
+                      <span class="icon">
+                        <i class="fas fa-file-pdf"></i>
+                      </span>
+
+                      <span>Paper</span>
+                    </a>
+                  </span>
+                  <span class="link-block">
+                    <a
+                      href="https://github.com/google/nerfies"
+                      class="external-link button is-normal is-rounded is-dark"
+                    >
+                      <span class="icon">
+                        <i class="fab fa-github"></i>
+                      </span>
+                      <span>Code</span>
+                    </a>
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
+    </section>
 
-          <div class="is-size-5 publication-authors">
-            <span class="author-block"><sup>1</sup>The Hong Kong Polytechnic University,</span>
-            <span class="author-block"><sup>2</sup>Southern University of Science and Technology</span>
-            <span class="author-block"><sup>3</sup>Amazon</span>
-          </div>
+    <section class="hero is-light is-small">
+      <div class="hero-body">
+        <div class="container">
+          <div id="results-carousel" class="carousel results-carousel">
+            <!-- Carousel Item (One Slide with Two Video Groups) -->
+            <div class="carousel-item">
+              <div class="video-group-wrapper">
+                <!-- First Video Group -->
+                <div class="video-group">
+                  <!-- Videos Wrapper -->
+                  <div class="videos-wrapper">
+                    <div class="video-item">
+                      <div class="video-caption">Lavie</div>
+                      <video
+                        id="video1"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/lavie/1.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
 
-          <div class="column has-text-centered">
-            <div class="publication-links">
-              <!-- PDF Link. -->
-              <span class="link-block">
-                <a href=""
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fas fa-file-pdf"></i>
-                  </span>
-                  <span>Paper</span>
-                </a>
-              </span>
-              <!-- <span class="link-block">
-                <a href="https://arxiv.org/abs/2011.12948"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="ai ai-arxiv"></i>
-                  </span>
-                  <span>arXiv</span>
-                </a>
-              </span> -->
-              <!-- Video Link. -->
-              <!-- <span class="link-block">
-                <a href="https://www.youtube.com/watch?v=MrKrnHhk8IA"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fab fa-youtube"></i>
-                  </span>
-                  <span>Video</span>
-                </a>
-              </span> -->
-              <!-- Code Link. -->
-              <span class="link-block">
-                <a href="https://github.com/google/nerfies"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fab fa-github"></i>
-                  </span>
-                  <span>Code</span>
-                  </a>
-              </span>
-              <!-- Dataset Link. -->
-              <!-- <span class="link-block">
-                <a href="https://github.com/google/nerfies/releases/tag/0.1"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="far fa-images"></i>
-                  </span>
-                  <span>Data</span>
-                  </a> -->
+                    <div class="video-item">
+                      <div class="video-caption">Videocrafter2</div>
+                      <video
+                        id="video2"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/videocrafter2/1.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Modelscope (Base Model)</div>
+                      <video
+                        id="video3"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/modelscope/1.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption" style="font-weight:bold;">DEMO</div>
+                      <video
+                        id="video4"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/demo/1.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+                  </div>
+                  <div class="video-group-caption">
+                    Slow motion flower petals fall from a blossom, landing
+                    softly on the ground.
+                  </div>
+                </div>
+
+                <!-- Second Video Group -->
+                <div class="video-group">
+                  <!-- Videos Wrapper -->
+                  <div class="videos-wrapper">
+                    <div class="video-item">
+                      <div class="video-caption">Lavie</div>
+                      <video
+                        id="video5"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/lavie/2.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Videocrafter2</div>
+                      <video
+                        id="video6"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/videocrafter2/2.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Modelscope (Base Model)</div>
+                      <video
+                        id="video7"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/modelscope/2.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption" style="font-weight:bold;">DEMO</div>
+                      <video
+                        id="video8"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/demo/2.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+                  </div>
+                  <div class="video-group-caption">
+                    An old man with white hair is shown speaking.
+                  </div>
+                  <br>
+                </div>
+              </div>
+            </div>
+            <!-- You can add more carousel items (with more video-group-wrapper) here -->
+
+
+            <div class="carousel-item">
+              <div class="video-group-wrapper">
+                <!-- First Video Group -->
+                <div class="video-group">
+                  <!-- Videos Wrapper -->
+                  <div class="videos-wrapper">
+                    <div class="video-item">
+                      <div class="video-caption">Lavie</div>
+                      <video
+                        id="video1"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/lavie/3.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Videocrafter2</div>
+                      <video
+                        id="video2"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/videocrafter2/3.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Modelscope (Base Model)</div>
+                      <video
+                        id="video3"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/modelscope/3.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption" style="font-weight:bold;">DEMO</div>
+                      <video
+                        id="video4"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/demo/3.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+                  </div>
+                  <div class="video-group-caption">
+                    Jockeys racing.
+                  </div>
+                </div>
+
+                <!-- Second Video Group -->
+                <div class="video-group">
+                  <!-- Videos Wrapper -->
+                  <div class="videos-wrapper">
+                    <div class="video-item">
+                      <div class="video-caption">Lavie</div>
+                      <video
+                        id="video5"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/lavie/4.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Videocrafter2</div>
+                      <video
+                        id="video6"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/videocrafter2/4.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Modelscope (Base Model)</div>
+                      <video
+                        id="video7"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/modelscope/4.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption" style="font-weight: bold;">DEMO</div>
+                      <video
+                        id="video8"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/demo/4.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+                  </div>
+                  <div class="video-group-caption">
+                    A bear is climbing a tree.
+                  </div>
+                  <br>
+                </div>
+              </div>
             </div>
 
+
+            <!-- third -->
+            <div class="carousel-item">
+              <div class="video-group-wrapper">
+                <!-- First Video Group -->
+                <div class="video-group">
+                  <!-- Videos Wrapper -->
+                  <div class="videos-wrapper">
+                    <div class="video-item">
+                      <div class="video-caption">Lavie</div>
+                      <video
+                        id="video1"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/lavie/5.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Videocrafter2</div>
+                      <video
+                        id="video2"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/videocrafter2/5.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Modelscope (Base Model)</div>
+                      <video
+                        id="video3"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/modelscope/5.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption" style="font-weight:bold;">DEMO</div>
+                      <video
+                        id="video4"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/demo/5.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+                  </div>
+                  <div class="video-group-caption">
+                    A boat accelerating to gain speed.
+                  </div>
+                </div>
+
+                <!-- Second Video Group -->
+                <div class="video-group">
+                  <!-- Videos Wrapper -->
+                  <div class="videos-wrapper">
+                    <div class="video-item">
+                      <div class="video-caption">Lavie</div>
+                      <video
+                        id="video5"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/lavie/6.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Videocrafter2</div>
+                      <video
+                        id="video6"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/videocrafter2/6.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Modelscope (Base Model)</div>
+                      <video
+                        id="video7"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/modelscope/6.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption" style="font-weight: bold;">DEMO</div>
+                      <video
+                        id="video8"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/demo/6.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+                  </div>
+                  <div class="video-group-caption">
+                    A green minecraft monster carries a gun.
+                  </div>
+                  <br>
+                </div>
+              </div>
+            </div>
+
+
+
+
+            <!-- fourth -->
+
+            <div class="carousel-item">
+              <div class="video-group-wrapper">
+                <!-- First Video Group -->
+                <div class="video-group">
+                  <!-- Videos Wrapper -->
+                  <div class="videos-wrapper">
+                    <div class="video-item">
+                      <div class="video-caption">Lavie</div>
+                      <video
+                        id="video1"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/lavie/13.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Videocrafter2</div>
+                      <video
+                        id="video2"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/videocrafter2/13.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Modelscope (Base Model)</div>
+                      <video
+                        id="video3"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/modelscope/13.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption" style="font-weight:bold;">DEMO</div>
+                      <video
+                        id="video4"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/demo/13.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+                  </div>
+                  <div class="video-group-caption">
+                    Bird view, flying over a snowy forest.
+                  </div>
+                </div>
+
+                <!-- Second Video Group -->
+                <div class="video-group">
+                  <!-- Videos Wrapper -->
+                  <div class="videos-wrapper">
+                    <div class="video-item">
+                      <div class="video-caption">Lavie</div>
+                      <video
+                        id="video5"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/lavie/14.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Videocrafter2</div>
+                      <video
+                        id="video6"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/videocrafter2/14.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Modelscope (Base Model)</div>
+                      <video
+                        id="video7"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/modelscope/14.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption" style="font-weight: bold;">DEMO</div>
+                      <video
+                        id="video8"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/demo/14.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+                  </div>
+                  <div class="video-group-caption">
+                    Superman shaking hands with Spiderman with the style of watercolor.
+                  </div>
+                  <br>
+                </div>
+              </div>
+            </div>
+
+
+            <!-- fifth -->
+
+            <div class="carousel-item">
+              <div class="video-group-wrapper">
+                <!-- First Video Group -->
+                <div class="video-group">
+                  <!-- Videos Wrapper -->
+                  <div class="videos-wrapper">
+                    <div class="video-item">
+                      <div class="video-caption">Lavie</div>
+                      <video
+                        id="video1"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/lavie/9.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Videocrafter2</div>
+                      <video
+                        id="video2"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/videocrafter2/9.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Modelscope (Base Model)</div>
+                      <video
+                        id="video3"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/modelscope/9.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption" style="font-weight:bold;">DEMO</div>
+                      <video
+                        id="video4"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/demo/9.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+                  </div>
+                  <div class="video-group-caption">
+                    A man is looking at a distant mountain in sci-fi style.
+                  </div>
+                </div>
+
+                <!-- Second Video Group -->
+                <div class="video-group">
+                  <!-- Videos Wrapper -->
+                  <div class="videos-wrapper">
+                    <div class="video-item">
+                      <div class="video-caption">Lavie</div>
+                      <video
+                        id="video5"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/lavie/10.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Videocrafter2</div>
+                      <video
+                        id="video6"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/videocrafter2/10.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption">Modelscope (Base Model)</div>
+                      <video
+                        id="video7"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/modelscope/10.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+
+                    <div class="video-item">
+                      <div class="video-caption" style="font-weight: bold;">DEMO</div>
+                      <video
+                        id="video8"
+                        autoplay
+                        controls
+                        muted
+                        loop
+                        playsinline
+                      >
+                        <source
+                          src="./static/videos/demo/10.mp4"
+                          type="video/mp4"
+                        />
+                      </video>
+                    </div>
+                  </div>
+                  <div class="video-group-caption">
+                    A roast turkey, couterclockwise.
+                  </div>
+                  <br>
+                </div>
+              </div>
+            </div>
+
+
+            <!-- sixth -->
+
+            
+
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<section class="hero teaser">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <video id="teaser" autoplay muted loop playsinline height="100%">
-        <source src="./static/videos/teaser.mp4"
-                type="video/mp4">
-      </video>
-      <h2 class="subtitle has-text-centered">
-        <span class="dnerf">Nerfies</span> turns selfie videos from your phone into
-        free-viewpoint
-        portraits.
-      </h2>
-    </div>
-  </div>
-</section>
+    <section class="section">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            <h2 class="title is-3">Abstract</h2>
+            <div class="content has-text-justified">
+              <p>
+                Despite advancements in Text-to-Video (T2V) generation,
+                producing videos with realistic motion remains challenging.
+                Current models often yield static or minimally dynamic outputs,
+                failing to capture complex motions described by text. This issue
+                stems from the internal biases in text encoding which overlooks
+                motions, and inadequate conditioning mechanisms in T2V
+                generation models. To address this, we propose a novel framework
+                called DEcomposed MOtion (DEMO), which enhances motion synthesis
+                in T2V generation by decomposing both text encoding and
+                conditioning into content and motion components. Our method
+                includes a content encoder for static elements and a motion
+                encoder for temporal dynamics, alongside separate content and
+                motion conditioning mechanisms. Crucially, we introduce
+                text-motion and video-motion supervision to improve the model's
+                understanding and generation of motion. Evaluations on
+                benchmarks such as MSR-VTT, UCF-101, WebVid-10M, EvalCrafter,
+                and VBench demonstrate DEMO's superior ability to produce videos
+                with enhanced motion dynamics while maintaining high visual
+                quality. Our approach significantly advances T2V generation by
+                integrating comprehensive motion understanding directly from
+                textual descriptions.
+              </p>
+            </div>
+          </div>
+        </div>
 
-
-<section class="hero is-light is-small">
-  <div class="hero-body">
-    <div class="container">
-      <div id="results-carousel" class="carousel results-carousel">
-        <div class="item item-steve">
-          <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/steve.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-chair-tp">
-          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/chair-tp.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-shiba">
-          <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/shiba.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-fullbody">
-          <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/fullbody.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-blueshirt">
-          <video poster="" id="blueshirt" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/blueshirt.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-mask">
-          <video poster="" id="mask" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/mask.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-coffee">
-          <video poster="" id="coffee" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/coffee.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-toby">
-          <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/toby2.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<section class="section">
-  <div class="container is-max-desktop">
-    <!-- Abstract. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-            Despite advancements in Text-to-Video (T2V) generation, producing videos with realistic motion remains challenging. Current models often yield static or minimally dynamic outputs, failing to capture complex motions described by text. This issue stems from the internal biases in text encoding which overlooks motions, and inadequate conditioning mechanisms in T2V generation models. To address this, we propose a novel framework called DEcomposed MOtion (DEMO), which enhances motion synthesis in T2V generation by decomposing both text encoding and conditioning into content and motion components. Our method includes a content encoder for static elements and a motion encoder for temporal dynamics, alongside separate content and motion conditioning mechanisms. Crucially, we introduce text-motion and video-motion supervision to improve the model's understanding and generation of motion. Evaluations on benchmarks such as MSR-VTT, UCF-101, WebVid-10M, EvalCrafter, and VBench demonstrate DEMO's superior ability to produce videos with enhanced motion dynamics while maintaining high visual quality. Our approach significantly advances T2V generation by integrating comprehensive motion understanding directly from textual descriptions.
-          </p>
-        </div>
-      </div>
-    </div>
-    <!--/ Abstract. -->
-
-    <!-- Paper video. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Video</h2>
-        <div class="publication-video">
-          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
-                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
-      </div>
-    </div>
-    <!--/ Paper video. -->
-  </div>
-</section>
-
-
-<section class="section">
-  <div class="container is-max-desktop">
-
-    <div class="columns is-centered">
-
-      <!-- Visual Effects. -->
-      <div class="column">
-        <div class="content">
-          <h2 class="title is-3">Visual Effects</h2>
-          <p>
-            Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
-            would be impossible without nerfies since it would require going through a wall.
-          </p>
-          <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/dollyzoom-stacked.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-      </div>
-      <!--/ Visual Effects. -->
-
-      <!-- Matting. -->
-      <div class="column">
-        <h2 class="title is-3">Matting</h2>
         <div class="columns is-centered">
-          <div class="column content">
+          <div class="column is-four-fifths">
+            <h2 class="title is-3" style="text-align: center">Background</h2>
+            <!-- <img src="static/images/architecture.jpeg"> -->
             <p>
-              As a byproduct of our method, we can also solve the matting problem by ignoring
-              samples that fall outside of a bounding box during rendering.
+              Most existing T2V models produce outputs that resemble
+              <strong
+                >static animations or exhibit minimal camera movement </strong
+              >, falling short of capturing the intricate motions described in
+              textual inputs.
+              <strong
+                >This limitation arises from two primary challenges:</strong
+              >
             </p>
-            <video id="matting-video" controls playsinline height="100%">
-              <source src="./static/videos/matting.mp4"
-                      type="video/mp4">
-            </video>
-          </div>
+            <br />
+            <p>
+              <strong>The first challenge is the inadequate motion representation in
+              text encoding.</strong> Current T2V models utilize large-scale
+              visual-language models (VLMs), such as CLIP, as text encoders.
+              These VLMs are
+              <strong
+                >highly effective at capturing static elements and spatial
+                relationships but struggle with encoding dynamic
+                motions.</strong
+              >
+              This is primarily due to their training focus, which biases them
+              towards recognizing nouns and objects, while verbs and actions are
+              less accurately represented.
+            </p>
+            <figure>
+              <img src="static/images/pilot.jpeg" />
+              <figcaption>
+                We generated a set of prompts following a fixed template,
+                grouping them according to the different parts of speech (POS).
+                These grouped texts are then passed into the CLIP text encoder,
+                and we calculate the sensitivity as the average sentence
+                distance within each group. As shown above,
+                <strong>
+                  compared to POS representing content, CLIP is less sensitive
+                  to POS representing motion.</strong
+                >
+              </figcaption>
+            </figure>
+            <br /><br />
 
+            <p>
+              <strong>The second challenge is
+              the reliance on spatial-only text conditioning</strong>.
+              Existing models often extend Text-to-Image (T2I) generation
+              techniques to T2V tasks, applying text information through spatial
+              cross-attention on a frame-by-frame basis. While effective for
+              generating high-quality static images, this approach is
+              insufficient for videos, where motion is a critical component that
+              spans both spatial and temporal dimensions. A holistic approach
+              that integrates text information across these dimensions is
+              essential for generating videos with realistic motion dynamics.
+            </p>
+          </div>
+        </div>
+      
+
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3" style="text-align: center">Methodology</h2>
+          <figure>
+            <img src="static/images/architecture.jpeg"/>
+            <figcaption>
+              DEMO incorporates dual text encoding and text conditioning (for
+              simplicity, other layers in the UNet are omitted). During
+              training, the
+              \(\textcolor{red}{\mathcal{L}_{\text{text-motion}}}\) is used to
+              enhance motion encoding, the
+              \(\textcolor{green}{\mathcal{L}_{\text{reg}}}\) is used to avoid
+              catastrophic forgetting, and the
+              \(\textcolor{yellow}{\mathcal{L}_{\text{video-motion}}}\) is used
+              to enhance motion integration. The <strong>snowflakes</strong> and
+              <strong>flames</strong> denote frozen and trainable parameters,
+              respectively.
+            </figcaption>
+          </figure>
+          <p>To address these challenges, we introduce Decomposed Motion (DEMO), a novel framework designed to enhance motion synthesis in T2V generation. DEMO adopts a comprehensive approach by <strong>decomposing both text encoding and conditioning processes into content and motion components.</strong> 
+          </p>
+          <br>
+          <p><strong>Addressing the first challenge, DEMO decomposes text encoding into content encoding and motion encoding processes.</strong> The content encoding focuses on object appearance and spatial layout while the motion encoding captures the essence of object movement and temporal dynamics. This separation allows the model to better understand and represent the dynamic aspects of the described scenes. 
+          <br>
+          <p><strong>Regarding the second challenge, DEMO decomposes the text conditioning process into content and motion dimensions. </strong>The content conditioning module integrates spatial embeddings into the video generation process on a frame-by-frame basis, ensuring that static elements are accurately depicted in each frame. In contrast, the motion conditioning module operates across the temporal dimension, infusing dynamic motion embeddings into the video.</p>
+          <p>
+            Moreover, DEMO incorporates novel <strong>text-motion and video-motion supervision</strong> techniques to enhance the model's understanding and generation of motion.
+          </p>
+          
         </div>
       </div>
-    </div>
-    <!--/ Matting. -->
-
-    <!-- Animation. -->
-    <div class="columns is-centered">
-      <div class="column is-full-width">
-        <h2 class="title is-3">Animation</h2>
-
-        <!-- Interpolating. -->
-        <h3 class="title is-4">Interpolating states</h3>
-        <div class="content has-text-justified">
-          <p>
-            We can also animate the scene by interpolating the deformation latent codes of two input
-            frames. Use the slider here to linearly interpolate between the left frame and the right
-            frame.
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3" style="text-align: center">Societal Impact</h2>
+          <p>This project aims to improve motion generation for text-to-video technologies, enabling more precise and expressive video content creation from text descriptions alone. By addressing the limitations in text encoding and conditioning mechanisms found in current literature, we hope to make advancements that improve the accessibility and effectiveness of video generation for creative industries, education, and entertainment. Our research also underscores the importance of appropriate text-video alignment to achieve fine-grained text-video alignment, which can contribute to more nuanced storytelling, enhanced educational tools, and richer visual communication.
           </p>
         </div>
-        <div class="columns is-vcentered interpolation-panel">
-          <div class="column is-3 has-text-centered">
-            <img src="./static/images/interpolate_start.jpg"
-                 class="interpolation-image"
-                 alt="Interpolate start reference image."/>
-            <p>Start Frame</p>
-          </div>
-          <div class="column interpolation-video-column">
-            <div id="interpolation-image-wrapper">
-              Loading...
+      </div>
+
+      <!-- <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3" style="text-align: center">Societal Impact</h2>
+          <p>This project aims to improve motion generation for text-to-video technologies, enabling more precise and expressive video content creation from text descriptions alone. By addressing the limitations in text encoding and conditioning mechanisms found in current literature, we hope to make advancements that improve the accessibility and effectiveness of video generation for creative industries, education, and entertainment. Our research also underscores the importance of appropriate text-video alignment to achieve fine-grained text-video alignment, which can contribute to more nuanced storytelling, enhanced educational tools, and richer visual communication.
+          </p>
+        </div>
+      </div> -->
+
+
+    </section>
+
+
+
+    <section class="section" id="BibTeX">
+      <div class="container is-max-desktop content">
+        <h2 class="title">BibTeX</h2>
+        <pre><code>
+      arxiv link
+
+    </code></pre>
+      </div>
+    </section>
+
+    <!-- <section class="section" id="BibTeX">
+      <div class="container is-max-desktop content">
+        <h2 class="title">Acknowledgements</h2>
+        <pre><code>
+      arxiv link
+
+    </code></pre>
+      </div>
+    </section> -->
+
+    <footer class="footer">
+      <div class="container">
+        <div class="columns is-centered">
+          <div class="column is-8">
+            <div class="content">
+              <p>
+                This website is licensed under a
+                <a
+                  rel="license"
+                  href="http://creativecommons.org/licenses/by-sa/4.0/"
+                  >Creative Commons Attribution-ShareAlike 4.0 International
+                  License</a
+                >.
+              </p>
+              <p>
+                Website adapted from the following
+                <a href="https://github.com/nerfies/nerfies.github.io"
+                  >source code</a
+                >.
+              </p>
             </div>
-            <input class="slider is-fullwidth is-large is-info"
-                   id="interpolation-slider"
-                   step="1" min="0" max="100" value="0" type="range">
-          </div>
-          <div class="column is-3 has-text-centered">
-            <img src="./static/images/interpolate_end.jpg"
-                 class="interpolation-image"
-                 alt="Interpolation end reference image."/>
-            <p class="is-bold">End Frame</p>
           </div>
         </div>
-        <br/>
-        <!--/ Interpolating. -->
-
-        <!-- Re-rendering. -->
-        <h3 class="title is-4">Re-rendering the input video</h3>
-        <div class="content has-text-justified">
-          <p>
-            Using <span class="dnerf">Nerfies</span>, you can re-render a video from a novel
-            viewpoint such as a stabilized camera by playing back the training deformations.
-          </p>
-        </div>
-        <div class="content has-text-centered">
-          <video id="replay-video"
-                 controls
-                 muted
-                 preload
-                 playsinline
-                 width="75%">
-            <source src="./static/videos/replay.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <!--/ Re-rendering. -->
-
       </div>
-    </div>
-    <!--/ Animation. -->
-
-
-    <!-- Concurrent Work. -->
-    <div class="columns is-centered">
-      <div class="column is-full-width">
-        <h2 class="title is-3">Related Links</h2>
-
-        <div class="content has-text-justified">
-          <p>
-            There's a lot of excellent work that was introduced around the same time as ours.
-          </p>
-          <p>
-            <a href="https://arxiv.org/abs/2104.09125">Progressive Encoding for Neural Optimization</a> introduces an idea similar to our windowed position encoding for coarse-to-fine optimization.
-          </p>
-          <p>
-            <a href="https://www.albertpumarola.com/research/D-NeRF/index.html">D-NeRF</a> and <a href="https://gvv.mpi-inf.mpg.de/projects/nonrigid_nerf/">NR-NeRF</a>
-            both use deformation fields to model non-rigid scenes.
-          </p>
-          <p>
-            Some works model videos with a NeRF by directly modulating the density, such as <a href="https://video-nerf.github.io/">Video-NeRF</a>, <a href="https://www.cs.cornell.edu/~zl548/NSFF/">NSFF</a>, and <a href="https://neural-3d-video.github.io/">DyNeRF</a>
-          </p>
-          <p>
-            There are probably many more by the time you are reading this. Check out <a href="https://dellaert.github.io/NeRF/">Frank Dellart's survey on recent NeRF papers</a>, and <a href="https://github.com/yenchenlin/awesome-NeRF">Yen-Chen Lin's curated list of NeRF papers</a>.
-          </p>
-        </div>
-      </div>
-    </div>
-    <!--/ Concurrent Work. -->
-
-  </div>
-</section>
-
-
-<section class="section" id="BibTeX">
-  <div class="container is-max-desktop content">
-    <h2 class="title">BibTeX</h2>
-    <pre><code>@article{park2021nerfies,
-  author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
-  title     = {Nerfies: Deformable Neural Radiance Fields},
-  journal   = {ICCV},
-  year      = {2021},
-}</code></pre>
-  </div>
-</section>
-
-
-<footer class="footer">
-  <div class="container">
-    <div class="content has-text-centered">
-      <a class="icon-link"
-         href="./static/videos/nerfies_paper.pdf">
-        <i class="fas fa-file-pdf"></i>
-      </a>
-      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
-        <i class="fab fa-github"></i>
-      </a>
-    </div>
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-          <p>
-            This website is licensed under a <a rel="license"
-                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>.
-          </p>
-          <p>
-            This means you are free to borrow the <a
-              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
-            we just ask that you link back to this page in the footer.
-            Please remember to remove the analytics code included in the header of the website which
-            you do not want on your website.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</footer>
-
-</body>
+    </footer>
+  </body>
 </html>

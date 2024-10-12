@@ -29,6 +29,34 @@ body {
 }
 
 
+
+
+.item {
+  flex: 1 0 22%;             /* Adjust to ensure 4 items fit within container */
+  max-width: 22%;
+  box-sizing: border-box;     /* Include padding and borders in size calculation */
+  scroll-snap-align: start;   /* Align items to the start when scrolling */
+}
+
+.item video {
+  width: 100%;               /* Ensure videos are responsive */
+  height: auto;              /* Maintain aspect ratio */
+}
+
+
+.results-carousel {
+  overflow: hidden;
+  width: 100%;
+  height: auto;
+}
+
+.results-carousel video {
+  width: 100%;
+  height: auto;
+}
+
+
+
 .publication-title {
 }
 
@@ -111,22 +139,16 @@ body {
 .publication-body img {
 }
 
-.results-carousel {
-  overflow: hidden;
-}
 
-.results-carousel .item {
+/* .results-carousel .item {
   margin: 5px;
   overflow: hidden;
   border: 1px solid #bbb;
   border-radius: 10px;
   padding: 0;
   font-size: 0;
-}
+} */
 
-.results-carousel video {
-  margin: 0;
-}
 
 
 .interpolation-panel {
@@ -155,4 +177,87 @@ body {
 }
 #interpolation-image-wrapper img {
   border-radius: 5px;
+}
+
+
+.container {
+  max-width: none;
+  width: 80%;
+}
+
+
+.video-caption {
+  text-align: center;       /* Center the text horizontally */
+  font-size: 1.5rem;          /* Make the font larger (adjust as needed) */
+  margin-top: 0px;         /* Add space between the videos and the text */
+  font-weight: bold;        /* Optional: make the text bold */
+  color: #333;              /* Optional: change the text color */
+}
+
+
+.carousel-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;    /* Stack video groups vertically */
+  gap: 40px;                 /* Space between video groups */
+}
+
+.video-group-wrapper {
+  display: flex;
+  flex-direction: column;    /* Stack two video groups vertically */
+  width: 100%;               /* Full width for better alignment in the carousel */
+  gap: 30px;                 /* Space between two video groups */
+}
+
+.video-group {
+  display: flex;
+  flex-direction: column;    /* Stack videos and caption vertically */
+  align-items: center;       /* Center the content horizontally */
+  width: 100%;               /* Full container width */
+  gap: 20px;                 /* Space between videos and group caption */
+}
+
+.videos-wrapper {
+  display: flex;             /* Align videos in a row */
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: nowrap;         /* Ensure videos stay in one line */
+  width: 100%;               /* Full width for the videos */
+  overflow-x: auto;          /* Enable horizontal scrolling if items exceed width */
+  gap: 20px;                 /* Space between video items */
+}
+
+.video-item {
+  position: relative;        /* Relative positioning for absolute text positioning */
+  display: flex;
+  flex-direction: column;    /* Stack text and video vertically */
+  align-items: center;       /* Center items horizontally */
+  width: 22%;                /* Width of each video container */
+}
+
+.video-item video {
+  width: 100%;               /* Make video take up the full width of its container */
+  height: auto;
+}
+
+.video-item .video-caption {
+  position: absolute;        /* Place caption absolutely within its container */
+  top: 0;                    /* Align to the top of the container */
+  left: 50%;                 /* Center horizontally */
+  transform: translateX(-50%); /* Center text exactly */
+  background: rgba(0, 0, 0, 0.6); /* Add background for readability */
+  color: #fff;               /* Set text color to white */
+  padding: 5px 10px;         /* Padding around the text */
+  font-size: 1rem;           /* Adjust font size for readability */
+  border-radius: 5px;        /* Add rounded corners to the text background */
+  white-space: nowrap;
+}
+
+.video-group-caption {
+  text-align: center;        /* Center the group caption */
+  font-size: 1.5rem;         /* Make the text a bit larger */
+  color: #555;               /* Optional: Set text color */
+  margin-top: 0px;          /* Add some space above the group caption */
+  font-weight: bold;
 }
